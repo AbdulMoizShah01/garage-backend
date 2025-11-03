@@ -1,0 +1,21 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.apiRouter = void 0;
+const express_1 = require("express");
+const customer_router_1 = require("./customers/customer.router");
+const vehicle_router_1 = require("./vehicles/vehicle.router");
+const work_order_router_1 = require("./work-orders/work-order.router");
+const inventory_router_1 = require("./inventory/inventory.router");
+const service_router_1 = require("./services/service.router");
+const worker_router_1 = require("./workers/worker.router");
+const dashboard_router_1 = require("./dashboard/dashboard.router");
+const router = (0, express_1.Router)();
+router.use("/customers", customer_router_1.customerRouter);
+router.use("/vehicles", vehicle_router_1.vehicleRouter);
+router.use("/work-orders", work_order_router_1.workOrderRouter);
+router.use("/inventory", inventory_router_1.inventoryRouter);
+router.use("/services", service_router_1.serviceCatalogRouter);
+router.use("/workers", worker_router_1.workerRouter);
+router.use("/dashboard", dashboard_router_1.dashboardRouter);
+exports.apiRouter = router;
+//# sourceMappingURL=index.js.map
