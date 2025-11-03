@@ -23,12 +23,14 @@ const schema = z.object({
         value.startsWith("sqlserver://"),
       "DATABASE_URL must be a valid connection string",
     ),
+  CORS_ORIGINS: z.string().optional().default("")
 });
 
 const parsed = schema.safeParse({
   NODE_ENV: process.env.NODE_ENV,
   PORT: process.env.PORT ?? "4000",
   DATABASE_URL: process.env.DATABASE_URL,
+  CORS_ORIGINS: process.env.CORS_ORIGINS ?? "",
 });
 
 if (!parsed.success) {
