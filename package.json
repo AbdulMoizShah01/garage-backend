@@ -2,11 +2,11 @@
   "name": "garage-management-backend",
   "version": "1.0.0",
   "description": "Backend API for the garage management application.",
-  "main": "dist/server.js",
+  "main": "dist/src/server.js",
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "dev": "ts-node-dev --respawn --transpile-only src/server.ts",
-    "start": "node dist/server.js",
+    "start": "node dist/src/server.js",
     "lint": "eslint --ext .ts src",
     "db:touch": "node -e \"const fs=require('fs');const path=require('path');const target=path.join(__dirname,'prisma','dev.db');if(!fs.existsSync(target)){fs.mkdirSync(path.dirname(target),{recursive:true});fs.closeSync(fs.openSync(target,'w'));}\"",
     "db:setup": "npm run db:touch && npm run prisma:migrate && npm run prisma:seed",
