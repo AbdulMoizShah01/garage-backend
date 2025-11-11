@@ -23,12 +23,16 @@ const schema = z.object({
         value.startsWith("sqlserver://"),
       "DATABASE_URL must be a valid connection string",
     ),
+  // Comma-separated list of allowed origins for CORS in production.
+  // Example: https://your-frontend.vercel.app,https://admin.example.com
+  CORS_ORIGINS: z.string().optional(),
 });
 
 const parsed = schema.safeParse({
   NODE_ENV: process.env.NODE_ENV,
   PORT: process.env.PORT ?? "4000",
   DATABASE_URL: process.env.DATABASE_URL,
+  CORS_ORIGINS: process.env.CORS_ORIGINS,
 });
 
 if (!parsed.success) {
