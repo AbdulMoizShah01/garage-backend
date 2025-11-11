@@ -12,5 +12,6 @@ router.post("/", (0, validate_resource_1.validateResource)(work_order_schema_1.c
 router.put("/:id", (0, validate_resource_1.validateResource)(work_order_schema_1.updateWorkOrderSchema), work_order_controller_1.updateWorkOrderHandler);
 router.post("/:id/complete", (0, validate_resource_1.validateResource)(work_order_schema_1.getWorkOrderSchema), work_order_controller_1.completeWorkOrderHandler);
 router.delete("/:id", (0, validate_resource_1.validateResource)(work_order_schema_1.getWorkOrderSchema), work_order_controller_1.deleteWorkOrderHandler);
+router.get("/:id/invoice", (0, validate_resource_1.validateResource)(work_order_schema_1.getWorkOrderSchema), work_order_controller_1.downloadWorkOrderInvoiceHandler);
 exports.workOrderRouter = router;
 //# sourceMappingURL=work-order.router.js.map

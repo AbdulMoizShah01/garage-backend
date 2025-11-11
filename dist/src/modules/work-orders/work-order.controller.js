@@ -1,7 +1,8 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.completeWorkOrderHandler = exports.deleteWorkOrderHandler = exports.updateWorkOrderHandler = exports.createWorkOrderHandler = exports.getWorkOrderHandler = exports.getWorkOrdersHandler = void 0;
+exports.downloadWorkOrderInvoiceHandler = exports.completeWorkOrderHandler = exports.deleteWorkOrderHandler = exports.updateWorkOrderHandler = exports.createWorkOrderHandler = exports.getWorkOrderHandler = exports.getWorkOrdersHandler = void 0;
 const work_order_service_1 = require("./work-order.service");
+const work_order_invoice_1 = require("./work-order.invoice");
 const work_order_schema_1 = require("./work-order.schema");
 const parseDate = (value) => {
     if (!value) {
@@ -108,4 +109,19 @@ const completeWorkOrderHandler = async (req, res, next) => {
     }
 };
 exports.completeWorkOrderHandler = completeWorkOrderHandler;
+const downloadWorkOrderInvoiceHandler = async (req, res, next) => {
+    try {
+        const workOrderId = Number(req.params.id);
+        const workOrder = await (0, work_order_service_1.getWorkOrderById)(workOrderId);
+        const pdf = await (0, work_order_invoice_1.createInvoicePdf)(workOrder);
+        const invoiceCode = (0, work_order_invoice_1.buildInvoiceCode)(workOrder).replace(/\//g, "-");
+        res.setHeader("Content-Type", "application/pdf");
+        res.setHeader("Content-Disposition", `attachment; filename="${invoiceCode}.pdf"`);
+        res.send(pdf);
+    }
+    catch (error) {
+        next(error);
+    }
+};
+exports.downloadWorkOrderInvoiceHandler = downloadWorkOrderInvoiceHandler;
 //# sourceMappingURL=work-order.controller.js.map

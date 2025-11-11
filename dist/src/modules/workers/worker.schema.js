@@ -1,14 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getWorkerSchema = exports.updateWorkerSchema = exports.createWorkerSchema = void 0;
+exports.updateWorkerSalaryStatusSchema = exports.getWorkerSchema = exports.updateWorkerSchema = exports.createWorkerSchema = void 0;
 const zod_1 = require("zod");
-const optionalEmailSchema = zod_1.z.preprocess((value) => {
-    if (typeof value !== "string") {
-        return undefined;
-    }
-    const trimmed = value.trim();
-    return trimmed.length ? trimmed : undefined;
-}, zod_1.z.string().email().optional());
 const optionalPhoneSchema = zod_1.z.preprocess((value) => {
     if (typeof value !== "string") {
         return undefined;
@@ -30,13 +23,18 @@ const optionalMoneySchema = zod_1.z.preprocess((value) => {
     }
     return value;
 }, zod_1.z.number().nonnegative().optional());
+const salaryFrequencySchema = zod_1.z
+    .enum(["DAILY", "MONTHLY"])
+    .optional()
+    .default("MONTHLY");
 const baseWorkerSchema = zod_1.z.object({
     name: zod_1.z
         .string()
         .min(1)
         .transform((value) => value.trim()),
-    email: optionalEmailSchema,
     phone: optionalPhoneSchema,
+    salaryAmount: optionalMoneySchema,
+    salaryFrequency: salaryFrequencySchema,
     commuteExpense: optionalMoneySchema,
     shiftExpense: optionalMoneySchema,
     mealExpense: optionalMoneySchema,
@@ -58,6 +56,18 @@ exports.updateWorkerSchema = zod_1.z.object({
 exports.getWorkerSchema = zod_1.z.object({
     params: zod_1.z.object({
         id: zod_1.z.string().transform((value) => parseInt(value, 10)),
+    }),
+});
+exports.updateWorkerSalaryStatusSchema = zod_1.z.object({
+    params: zod_1.z.object({
+        id: zod_1.z.string().transform((value) => parseInt(value, 10)),
+    }),
+    body: zod_1.z.object({
+        markAs: zod_1.z.enum(["PAID", "UNPAID"]),
+        paidAt: zod_1.z
+            .string()
+            .optional()
+            .refine((value) => !value || !Number.isNaN(Date.parse(value)), "Invalid paidAt value"),
     }),
 });
 //# sourceMappingURL=worker.schema.js.map

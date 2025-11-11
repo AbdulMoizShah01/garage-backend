@@ -1,13 +1,5 @@
 import { z } from "zod";
 
-const optionalEmailSchema = z.preprocess((value) => {
-  if (typeof value !== "string") {
-    return undefined;
-  }
-  const trimmed = value.trim();
-  return trimmed.length ? trimmed : undefined;
-}, z.string().email().optional());
-
 const optionalPhoneSchema = z.preprocess((value) => {
   if (typeof value !== "string") {
     return undefined;
@@ -33,13 +25,19 @@ const optionalMoneySchema = z.preprocess((value) => {
   return value;
 }, z.number().nonnegative().optional());
 
+const salaryFrequencySchema = z
+  .enum(["DAILY", "MONTHLY"])
+  .optional()
+  .default("MONTHLY");
+
 const baseWorkerSchema = z.object({
   name: z
     .string()
     .min(1)
     .transform((value) => value.trim()),
-  email: optionalEmailSchema,
   phone: optionalPhoneSchema,
+  salaryAmount: optionalMoneySchema,
+  salaryFrequency: salaryFrequencySchema,
   commuteExpense: optionalMoneySchema,
   shiftExpense: optionalMoneySchema,
   mealExpense: optionalMoneySchema,
@@ -64,5 +62,21 @@ export const updateWorkerSchema = z.object({
 export const getWorkerSchema = z.object({
   params: z.object({
     id: z.string().transform((value) => parseInt(value, 10)),
+  }),
+});
+
+export const updateWorkerSalaryStatusSchema = z.object({
+  params: z.object({
+    id: z.string().transform((value) => parseInt(value, 10)),
+  }),
+  body: z.object({
+    markAs: z.enum(["PAID", "UNPAID"]),
+    paidAt: z
+      .string()
+      .optional()
+      .refine(
+        (value) => !value || !Number.isNaN(Date.parse(value)),
+        "Invalid paidAt value",
+      ),
   }),
 });

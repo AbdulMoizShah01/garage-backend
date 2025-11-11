@@ -59,8 +59,10 @@ async function main() {
   const workerAlex = await prisma.worker.create({
     data: {
       name: 'Alex Johnson',
-      email: 'alex.johnson@example.com',
       phone: '555-0333',
+      salaryAmount: 450,
+      salaryFrequency: 'MONTHLY',
+      lastSalaryPaidAt: new Date(),
       commuteExpense: 18.5,
       shiftExpense: 120,
       mealExpense: 35,
@@ -139,9 +141,9 @@ async function main() {
       quotedAt: new Date(),
       laborCost: 200,
       partsCost: 130,
-      taxes: 30,
+      taxes: 59.4,
       parkingCharge: 15,
-      totalCost: 375,
+      totalCost: 404.4,
       lineItems: {
         create: [
           {

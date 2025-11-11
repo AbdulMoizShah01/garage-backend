@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.deleteWorkerHandler = exports.updateWorkerHandler = exports.createWorkerHandler = exports.getWorkerHandler = exports.getWorkersHandler = void 0;
+exports.updateWorkerSalaryStatusHandler = exports.deleteWorkerHandler = exports.updateWorkerHandler = exports.createWorkerHandler = exports.getWorkerHandler = exports.getWorkersHandler = void 0;
 const worker_service_1 = require("./worker.service");
 const getWorkersHandler = async (req, res, next) => {
     try {
@@ -56,4 +56,16 @@ const deleteWorkerHandler = async (req, res, next) => {
     }
 };
 exports.deleteWorkerHandler = deleteWorkerHandler;
+const updateWorkerSalaryStatusHandler = async (req, res, next) => {
+    try {
+        const workerId = Number(req.params.id);
+        const { markAs, paidAt } = req.body;
+        const worker = await (0, worker_service_1.updateWorkerSalaryStatus)(workerId, markAs, paidAt);
+        res.json(worker);
+    }
+    catch (error) {
+        next(error);
+    }
+};
+exports.updateWorkerSalaryStatusHandler = updateWorkerSalaryStatusHandler;
 //# sourceMappingURL=worker.controller.js.map

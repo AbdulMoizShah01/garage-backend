@@ -7,6 +7,7 @@ import {
   getWorkOrdersHandler,
   updateWorkOrderHandler,
   completeWorkOrderHandler,
+  downloadWorkOrderInvoiceHandler,
 } from "./work-order.controller";
 import { validateResource } from "../../middleware/validate-resource";
 import {
@@ -38,6 +39,11 @@ router.delete(
   "/:id",
   validateResource(getWorkOrderSchema),
   deleteWorkOrderHandler,
+);
+router.get(
+  "/:id/invoice",
+  validateResource(getWorkOrderSchema),
+  downloadWorkOrderInvoiceHandler,
 );
 
 export const workOrderRouter = router;

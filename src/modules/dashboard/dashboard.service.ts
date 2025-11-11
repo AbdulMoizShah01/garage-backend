@@ -1,20 +1,20 @@
 import { subDays } from "date-fns";
 
 import { prisma } from "../../lib/prisma";
+import { getInsightsSummary } from "../insights/insights.service";
 
 const LOW_STOCK_THRESHOLD = 5;
 
 export const getDashboardSummary = async () => {
   const [
     customers,
-    vehicles,
     openWorkOrders,
     completedWorkOrders,
     inventoryItems,
     workers,
+    insightsSummary,
   ] = await Promise.all([
     prisma.customer.count(),
-    prisma.vehicle.count(),
     prisma.workOrder.count({
       where: {
         status: { in: ["PENDING", "IN_PROGRESS"] },
@@ -67,6 +67,7 @@ export const getDashboardSummary = async () => {
         },
       },
     }),
+    getInsightsSummary(),
   ]);
 
   const revenueLast30Days = completedWorkOrders.reduce(
@@ -80,10 +81,15 @@ export const getDashboardSummary = async () => {
   return {
     totals: {
       customers,
-      vehicles,
+      vehicles: insightsSummary.vehicleCount,
       openWorkOrders,
     },
     revenueLast30Days,
+    financials: {
+      netEarned: insightsSummary.netEarned,
+      netExpense: insightsSummary.netExpense,
+      netProfit: insightsSummary.netProfit,
+    },
     recentCompletedWorkOrders: completedWorkOrders,
     inventoryAlertsCount: criticalInventory.length,
     lowStockItems: criticalInventory.slice(0, 5),

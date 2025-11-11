@@ -11,5 +11,6 @@ router.post("/", (0, validate_resource_1.validateResource)(worker_schema_1.creat
 router.get("/:id", (0, validate_resource_1.validateResource)(worker_schema_1.getWorkerSchema), worker_controller_1.getWorkerHandler);
 router.put("/:id", (0, validate_resource_1.validateResource)(worker_schema_1.updateWorkerSchema), worker_controller_1.updateWorkerHandler);
 router.delete("/:id", (0, validate_resource_1.validateResource)(worker_schema_1.getWorkerSchema), worker_controller_1.deleteWorkerHandler);
+router.post("/:id/salary-status", (0, validate_resource_1.validateResource)(worker_schema_1.updateWorkerSalaryStatusSchema), worker_controller_1.updateWorkerSalaryStatusHandler);
 exports.workerRouter = router;
 //# sourceMappingURL=worker.router.js.map

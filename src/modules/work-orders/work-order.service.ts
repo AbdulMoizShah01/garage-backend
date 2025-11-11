@@ -2,6 +2,7 @@ import { Prisma } from "@prisma/client";
 import createHttpError from "http-errors";
 
 import { prisma } from "../../lib/prisma";
+import { VAT_RATE } from "./work-order.constants";
 import {
   WORK_ORDER_STATUSES,
   WorkOrderAssignmentInput,
@@ -36,6 +37,15 @@ const generateSkuFromName = (name: string) => {
 const generateWorkOrderCode = async (tx: TxClient) => {
   const sequence = await tx.workOrder.count();
   return `WO-${(sequence + 1).toString().padStart(5, "0")}`;
+};
+
+const calculateVatAmount = (
+  laborCost: number,
+  partsCost: number,
+  discountValue: number,
+) => {
+  const taxableBase = Math.max(laborCost + partsCost - discountValue, 0);
+  return taxableBase * VAT_RATE;
 };
 
 type InventoryLineInput = Extract<WorkOrderLineItemInput, { type: "PART" }>;
@@ -427,8 +437,12 @@ export const createWorkOrder = async (payload: CreateWorkOrderInput) => {
 
     const laborCostValue = payload.laborCost ?? servicesTotal;
     const partsCostValue = payload.partsCost ?? partsTotal;
-    const taxesValue = payload.taxes ?? 0;
     const discountValue = payload.discount ?? 0;
+    const taxesValue = calculateVatAmount(
+      laborCostValue,
+      partsCostValue,
+      discountValue,
+    );
     const parkingChargeValue = payload.parkingCharge ?? 0;
     const totalValue =
       laborCostValue +
@@ -605,8 +619,12 @@ export const updateWorkOrder = async (
 
     const laborCostValue = payload.laborCost ?? servicesTotal;
     const partsCostValue = payload.partsCost ?? partsTotal;
-    const taxesValue = payload.taxes ?? existing.taxes.toNumber();
     const discountValue = payload.discount ?? existing.discount.toNumber();
+    const taxesValue = calculateVatAmount(
+      laborCostValue,
+      partsCostValue,
+      discountValue,
+    );
     const parkingChargeValue =
       payload.parkingCharge ?? existing.parkingCharge.toNumber();
     const totalValue =

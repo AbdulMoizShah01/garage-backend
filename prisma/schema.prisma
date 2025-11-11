@@ -126,8 +126,10 @@ model Worker {
   createdAt     DateTime              @default(now())
   updatedAt     DateTime              @updatedAt
   name          String
-  email         String?
   phone         String?
+  salaryAmount   Decimal              @default(0)
+  salaryFrequency String              @default("MONTHLY")
+  lastSalaryPaidAt DateTime?
   commuteExpense Decimal              @default(0)
   shiftExpense   Decimal              @default(0)
   mealExpense    Decimal              @default(0)
@@ -136,6 +138,7 @@ model Worker {
   totalServices Int                   @default(0)
   assignments   WorkOrderAssignment[]
 }
+
 
 model WorkOrderAssignment {
   id            Int       @id @default(autoincrement())

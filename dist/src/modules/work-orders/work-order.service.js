@@ -7,6 +7,7 @@ exports.deleteWorkOrder = exports.completeWorkOrder = exports.updateWorkOrder = 
 const client_1 = require("@prisma/client");
 const http_errors_1 = __importDefault(require("http-errors"));
 const prisma_1 = require("../../lib/prisma");
+const work_order_constants_1 = require("./work-order.constants");
 const calculateMoney = (value) => new client_1.Prisma.Decimal(Number.isFinite(value) ? value.toFixed(2) : "0");
 const toDate = (value) => (value ? new Date(value) : undefined);
 const generateSkuFromName = (name) => {
@@ -17,6 +18,10 @@ const generateSkuFromName = (name) => {
 const generateWorkOrderCode = async (tx) => {
     const sequence = await tx.workOrder.count();
     return `WO-${(sequence + 1).toString().padStart(5, "0")}`;
+};
+const calculateVatAmount = (laborCost, partsCost, discountValue) => {
+    const taxableBase = Math.max(laborCost + partsCost - discountValue, 0);
+    return taxableBase * work_order_constants_1.VAT_RATE;
 };
 const ensureInventoryItem = async (tx, input) => {
     if (input.inventoryItemId) {
@@ -333,8 +338,8 @@ const createWorkOrder = async (payload) => {
         const { assignmentData, workerDeltas } = await prepareAssignments(tx, payload.assignments ?? [], serviceCount);
         const laborCostValue = payload.laborCost ?? servicesTotal;
         const partsCostValue = payload.partsCost ?? partsTotal;
-        const taxesValue = payload.taxes ?? 0;
         const discountValue = payload.discount ?? 0;
+        const taxesValue = calculateVatAmount(laborCostValue, partsCostValue, discountValue);
         const parkingChargeValue = payload.parkingCharge ?? 0;
         const totalValue = laborCostValue +
             partsCostValue +
@@ -475,8 +480,8 @@ const updateWorkOrder = async (id, payload) => {
         }
         const laborCostValue = payload.laborCost ?? servicesTotal;
         const partsCostValue = payload.partsCost ?? partsTotal;
-        const taxesValue = payload.taxes ?? existing.taxes.toNumber();
         const discountValue = payload.discount ?? existing.discount.toNumber();
+        const taxesValue = calculateVatAmount(laborCostValue, partsCostValue, discountValue);
         const parkingChargeValue = payload.parkingCharge ?? existing.parkingCharge.toNumber();
         const totalValue = laborCostValue +
             partsCostValue +

@@ -8,6 +8,10 @@ import {
   deleteWorkOrder,
   completeWorkOrder,
 } from "./work-order.service";
+import {
+  buildInvoiceCode,
+  createInvoicePdf,
+} from "./work-order.invoice";
 import { WORK_ORDER_STATUSES } from "./work-order.schema";
 
 const parseDate = (value?: string) => {
@@ -142,6 +146,28 @@ export const completeWorkOrderHandler = async (
     const workOrderId = Number(req.params.id);
     const workOrder = await completeWorkOrder(workOrderId);
     res.json(workOrder);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const downloadWorkOrderInvoiceHandler = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const workOrderId = Number(req.params.id);
+    const workOrder = await getWorkOrderById(workOrderId);
+    const pdf = await createInvoicePdf(workOrder);
+    const invoiceCode = buildInvoiceCode(workOrder).replace(/\//g, "-");
+
+    res.setHeader("Content-Type", "application/pdf");
+    res.setHeader(
+      "Content-Disposition",
+      `attachment; filename="${invoiceCode}.pdf"`,
+    );
+    res.send(pdf);
   } catch (error) {
     next(error);
   }

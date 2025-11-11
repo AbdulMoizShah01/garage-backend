@@ -2,7 +2,7 @@
   "compilerOptions": {
     "target": "ES2021",
     "module": "CommonJS",
-    "rootDirs": ["src", "prisma"],
+    "rootDir": ".",
     "outDir": "dist",
     "strict": true,
     "esModuleInterop": true,
@@ -11,6 +11,6 @@
     "forceConsistentCasingInFileNames": true,
     "sourceMap": true
   },
-  "include": ["src/**/*", "prisma/**/*"],
+  "include": ["src", "prisma/seed.ts"],
   "exclude": ["node_modules", "dist"]
 }

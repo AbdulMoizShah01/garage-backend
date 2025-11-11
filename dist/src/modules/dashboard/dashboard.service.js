@@ -3,11 +3,11 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.getDashboardSummary = void 0;
 const date_fns_1 = require("date-fns");
 const prisma_1 = require("../../lib/prisma");
+const insights_service_1 = require("../insights/insights.service");
 const LOW_STOCK_THRESHOLD = 5;
 const getDashboardSummary = async () => {
-    const [customers, vehicles, openWorkOrders, completedWorkOrders, inventoryItems, workers,] = await Promise.all([
+    const [customers, openWorkOrders, completedWorkOrders, inventoryItems, workers, insightsSummary,] = await Promise.all([
         prisma_1.prisma.customer.count(),
-        prisma_1.prisma.vehicle.count(),
         prisma_1.prisma.workOrder.count({
             where: {
                 status: { in: ["PENDING", "IN_PROGRESS"] },
@@ -60,16 +60,22 @@ const getDashboardSummary = async () => {
                 },
             },
         }),
+        (0, insights_service_1.getInsightsSummary)(),
     ]);
     const revenueLast30Days = completedWorkOrders.reduce((sum, order) => sum + order.totalCost.toNumber(), 0);
     const criticalInventory = inventoryItems.filter((item) => item.quantityOnHand <= LOW_STOCK_THRESHOLD);
     return {
         totals: {
             customers,
-            vehicles,
+            vehicles: insightsSummary.vehicleCount,
             openWorkOrders,
         },
         revenueLast30Days,
+        financials: {
+            netEarned: insightsSummary.netEarned,
+            netExpense: insightsSummary.netExpense,
+            netProfit: insightsSummary.netProfit,
+        },
         recentCompletedWorkOrders: completedWorkOrders,
         inventoryAlertsCount: criticalInventory.length,
         lowStockItems: criticalInventory.slice(0, 5),

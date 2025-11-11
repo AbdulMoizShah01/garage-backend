@@ -9,6 +9,8 @@ const inventory_router_1 = require("./inventory/inventory.router");
 const service_router_1 = require("./services/service.router");
 const worker_router_1 = require("./workers/worker.router");
 const dashboard_router_1 = require("./dashboard/dashboard.router");
+const metadata_router_1 = require("./metadata/metadata.router");
+const insights_router_1 = require("./insights/insights.router");
 const router = (0, express_1.Router)();
 router.use("/customers", customer_router_1.customerRouter);
 router.use("/vehicles", vehicle_router_1.vehicleRouter);
@@ -17,5 +19,7 @@ router.use("/inventory", inventory_router_1.inventoryRouter);
 router.use("/services", service_router_1.serviceCatalogRouter);
 router.use("/workers", worker_router_1.workerRouter);
 router.use("/dashboard", dashboard_router_1.dashboardRouter);
+router.use("/metadata", metadata_router_1.metadataRouter);
+router.use("/insights", insights_router_1.insightsRouter);
 exports.apiRouter = router;
 //# sourceMappingURL=index.js.map

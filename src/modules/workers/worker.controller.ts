@@ -6,6 +6,7 @@ import {
   createWorker,
   updateWorker,
   deleteWorker,
+  updateWorkerSalaryStatus,
 } from "./worker.service";
 
 export const getWorkersHandler = async (
@@ -73,6 +74,24 @@ export const deleteWorkerHandler = async (
     const workerId = Number(req.params.id);
     await deleteWorker(workerId);
     res.status(204).send();
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const updateWorkerSalaryStatusHandler = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const workerId = Number(req.params.id);
+    const { markAs, paidAt } = req.body as {
+      markAs: "PAID" | "UNPAID";
+      paidAt?: string;
+    };
+    const worker = await updateWorkerSalaryStatus(workerId, markAs, paidAt);
+    res.json(worker);
   } catch (error) {
     next(error);
   }
