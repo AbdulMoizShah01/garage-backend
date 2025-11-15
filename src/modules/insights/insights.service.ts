@@ -25,6 +25,7 @@ export const getInsightsSummary = async () => {
     statusGroups,
     servicesSoldAgg,
     partsSoldAgg,
+    spendings,
   ] = await Promise.all([
     prisma.workOrder.findMany({
       where: {
@@ -68,6 +69,13 @@ export const getInsightsSummary = async () => {
         },
       },
     }),
+    prisma.spending.findMany({
+      where: {
+        incurredAt: {
+          gte: windowStart,
+        },
+      },
+    }),
   ]);
 
   const completedOrders = periodOrders.filter(
@@ -101,7 +109,13 @@ export const getInsightsSummary = async () => {
     return sum + salary;
   }, 0);
 
-  const netExpense = partsExpense + workerExpenseTotal + salaryBudget;
+  const spendingsTotal = spendings.reduce(
+    (sum, spending) => sum + decimalToNumber(spending.amount),
+    0,
+  );
+
+  const netExpense =
+    partsExpense + workerExpenseTotal + salaryBudget + spendingsTotal;
   const netProfit = netEarned - netExpense;
 
   const monthlyBuckets = Array.from({ length: MONTHS_TO_REPORT }).map(
@@ -110,14 +124,17 @@ export const getInsightsSummary = async () => {
       const revenue = completedOrders
         .filter((order) => isSameMonth(order.createdAt, monthDate))
         .reduce((sum, order) => sum + decimalToNumber(order.totalCost), 0);
-      const expenses = periodOrders
+      const expensesFromOrders = periodOrders
         .filter((order) => isSameMonth(order.createdAt, monthDate))
         .reduce((sum, order) => sum + decimalToNumber(order.partsCost), 0);
+      const expensesFromSpendings = spendings
+        .filter((spending) => isSameMonth(spending.incurredAt, monthDate))
+        .reduce((sum, spending) => sum + decimalToNumber(spending.amount), 0);
 
       return {
         label: format(monthDate, "MMM yyyy"),
         revenue,
-        expenses,
+        expenses: expensesFromOrders + expensesFromSpendings,
       };
     },
   );
@@ -133,6 +150,7 @@ export const getInsightsSummary = async () => {
     netProfit,
     vehicleCount,
     partsExpense,
+    spendingsTotal,
     servicesSold: servicesSoldAgg._sum.quantity ?? 0,
     partsSold: partsSoldAgg._sum.quantity ?? 0,
     workOrdersByStatus,

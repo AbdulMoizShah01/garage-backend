@@ -38,6 +38,11 @@ const drawLogo = (doc) => {
             // fall back to text logo
         }
     }
+    doc
+        .font("Helvetica-Bold")
+        .fontSize(26)
+        .fillColor("#1f6fe6")
+        .text("GaragePro", 40, 40);
     doc.fillColor("#111");
 };
 const drawTableRow = (doc, y, description, quantity, unitPrice, lineTotal) => {

@@ -154,3 +154,13 @@ model WorkOrderAssignment {
 
   @@unique([workOrderId, workerId])
 }
+
+model Spending {
+  id          Int      @id @default(autoincrement())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  category    String
+  amount      Decimal  @default(0)
+  description String?
+  incurredAt  DateTime @default(now())
+}

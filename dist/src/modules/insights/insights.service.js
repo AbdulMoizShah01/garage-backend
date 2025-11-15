@@ -10,7 +10,7 @@ const decimalToNumber = (value) => value instanceof client_1.Prisma.Decimal ? va
 const getInsightsSummary = async () => {
     const now = new Date();
     const windowStart = (0, date_fns_1.startOfMonth)((0, date_fns_1.subMonths)(now, MONTHS_TO_REPORT - 1));
-    const [periodOrders, workers, vehicleCount, statusGroups, servicesSoldAgg, partsSoldAgg,] = await Promise.all([
+    const [periodOrders, workers, vehicleCount, statusGroups, servicesSoldAgg, partsSoldAgg, spendings,] = await Promise.all([
         prisma_1.prisma.workOrder.findMany({
             where: {
                 createdAt: {
@@ -53,6 +53,13 @@ const getInsightsSummary = async () => {
                 },
             },
         }),
+        prisma_1.prisma.spending.findMany({
+            where: {
+                incurredAt: {
+                    gte: windowStart,
+                },
+            },
+        }),
     ]);
     const completedOrders = periodOrders.filter((order) => order.status === "COMPLETED");
     const netEarned = completedOrders.reduce((sum, order) => sum + decimalToNumber(order.totalCost), 0);
@@ -74,20 +81,24 @@ const getInsightsSummary = async () => {
         }
         return sum + salary;
     }, 0);
-    const netExpense = partsExpense + workerExpenseTotal + salaryBudget;
+    const spendingsTotal = spendings.reduce((sum, spending) => sum + decimalToNumber(spending.amount), 0);
+    const netExpense = partsExpense + workerExpenseTotal + salaryBudget + spendingsTotal;
     const netProfit = netEarned - netExpense;
     const monthlyBuckets = Array.from({ length: MONTHS_TO_REPORT }).map((_, index) => {
         const monthDate = (0, date_fns_1.startOfMonth)((0, date_fns_1.subMonths)(now, MONTHS_TO_REPORT - 1 - index));
         const revenue = completedOrders
             .filter((order) => (0, date_fns_1.isSameMonth)(order.createdAt, monthDate))
             .reduce((sum, order) => sum + decimalToNumber(order.totalCost), 0);
-        const expenses = periodOrders
+        const expensesFromOrders = periodOrders
             .filter((order) => (0, date_fns_1.isSameMonth)(order.createdAt, monthDate))
             .reduce((sum, order) => sum + decimalToNumber(order.partsCost), 0);
+        const expensesFromSpendings = spendings
+            .filter((spending) => (0, date_fns_1.isSameMonth)(spending.incurredAt, monthDate))
+            .reduce((sum, spending) => sum + decimalToNumber(spending.amount), 0);
         return {
             label: (0, date_fns_1.format)(monthDate, "MMM yyyy"),
             revenue,
-            expenses,
+            expenses: expensesFromOrders + expensesFromSpendings,
         };
     });
     const workOrdersByStatus = statusGroups.map((group) => ({
@@ -100,6 +111,7 @@ const getInsightsSummary = async () => {
         netProfit,
         vehicleCount,
         partsExpense,
+        spendingsTotal,
         servicesSold: servicesSoldAgg._sum.quantity ?? 0,
         partsSold: partsSoldAgg._sum.quantity ?? 0,
         workOrdersByStatus,

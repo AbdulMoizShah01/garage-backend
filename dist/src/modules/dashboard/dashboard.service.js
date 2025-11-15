@@ -75,6 +75,7 @@ const getDashboardSummary = async () => {
             netEarned: insightsSummary.netEarned,
             netExpense: insightsSummary.netExpense,
             netProfit: insightsSummary.netProfit,
+            spendings: insightsSummary.spendingsTotal,
         },
         recentCompletedWorkOrders: completedWorkOrders,
         inventoryAlertsCount: criticalInventory.length,

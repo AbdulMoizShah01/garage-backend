@@ -9,6 +9,7 @@ import { workerRouter } from "./workers/worker.router";
 import { dashboardRouter } from "./dashboard/dashboard.router";
 import { metadataRouter } from "./metadata/metadata.router";
 import { insightsRouter } from "./insights/insights.router";
+import { spendingRouter } from "./spendings/spending.router";
 
 const router = Router();
 
@@ -21,5 +22,6 @@ router.use("/workers", workerRouter);
 router.use("/dashboard", dashboardRouter);
 router.use("/metadata", metadataRouter);
 router.use("/insights", insightsRouter);
+router.use("/spendings", spendingRouter);
 
 export const apiRouter = router;
